@@ -1,0 +1,9 @@
+*.pyc
+*.jpg
+.idea/
+.env/
+.env_win/
+.snapshot/
+.log/
+.event/
+.setting/
