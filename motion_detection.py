@@ -20,18 +20,18 @@ def main():
         status, frame = video.read()
 
         gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        gray_frame = cv2.GaussianBlur(gray_frame, (5, 5), 0)
+        blur_frame = cv2.GaussianBlur(gray_frame, (5, 5), 0)
 
         if reference_frame is None:
-            reference_frame = gray_frame
+            reference_frame = blur_frame
             continue
 
-        delta_frame = cv2.absdiff(reference_frame, gray_frame)
+        delta_frame = cv2.absdiff(reference_frame, blur_frame)
         thresh_frame = cv2.threshold( delta_frame, 30, 255, cv2.THRESH_BINARY)[1]
-        thresh_frame = cv2.dilate(thresh_frame, None, iterations =2)
+        dilate_frame = cv2.dilate(thresh_frame, None, iterations =2)
 
         #if we are using OpenCV 3.X, replace  (cnts, _) on (_, cnts, _)
-        (cnts, _) = cv2.findContours(thresh_frame.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        (cnts, _) = cv2.findContours(dilate_frame.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         for contour in cnts:
             if cv2.contourArea(contour) < args.min_area :
@@ -40,8 +40,10 @@ def main():
             cv2.rectangle(frame, (x,y), (x+w,y+h), (0,255,0), 1)
 
         cv2.imshow("Gray frame", gray_frame)
+        cv2.imshow("Blur frame", blur_frame)
         cv2.imshow("Delta frame", delta_frame)
         cv2.imshow("Thresh frame", thresh_frame)
+        cv2.imshow("Dilate frame", dilate_frame)
         cv2.imshow("Complete frame", frame)
 
         keypressed = cv2.waitKey(1)
