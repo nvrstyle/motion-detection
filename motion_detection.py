@@ -1,5 +1,6 @@
 import argparse
 import cv2
+import numpy as np
 
 def main():
     # construct the argument parser and parse the arguments
@@ -28,10 +29,12 @@ def main():
 
         delta_frame = cv2.absdiff(reference_frame, gray_frame)
         thresh_frame = cv2.threshold( delta_frame, 30, 255, cv2.THRESH_BINARY)[1]
-        thresh_frame = cv2.dilate(thresh_frame, None, iterations =2)
+        #thresh_frame = cv2.dilate(thresh_frame, None, iterations =2)
+        dilate_frame = cv2.dilate(thresh_frame, None, iterations=2)
+        erode_frame = cv2.dilate(dilate_frame, None, iterations=2)
 
         #if we are using OpenCV 3.X, replace  (cnts, _) on (_, cnts, _)
-        (cnts, _) = cv2.findContours(thresh_frame.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        (cnts, _) = cv2.findContours(erode_frame.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         for contour in cnts:
             if cv2.contourArea(contour) < args.min_area :
@@ -42,6 +45,8 @@ def main():
         cv2.imshow("Gray frame", gray_frame)
         cv2.imshow("Delta frame", delta_frame)
         cv2.imshow("Thresh frame", thresh_frame)
+        cv2.imshow("Dilate frame", dilate_frame)
+        cv2.imshow("Erode frame", erode_frame)
         cv2.imshow("Complete frame", frame)
 
         keypressed = cv2.waitKey(1)
